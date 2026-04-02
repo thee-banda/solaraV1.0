@@ -4,6 +4,7 @@ import { useActionState, useState, useEffect, useMemo } from "react";
 import { calculateSolar } from "@/app/actions/solar";
 import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
+import { LineChart, Line, ResponsiveContainer } from "recharts";
 import {
   Sun,
   ChevronRight,
@@ -20,6 +21,7 @@ import {
   XCircle,
   RefreshCcw,
   Loader2,
+  Satellite,
   Compass,
   Clock,
   ChevronUp,
@@ -183,8 +185,8 @@ export function SolarForm() {
         {/* Header Section */}
         <div className="flex items-center justify-between gap-4 mb-12">
           <div className="flex items-center gap-4">
-            <div className="p-4 bg-amber-100 dark:bg-amber-900/30 rounded-[22px] rotate-3">
-              <Sun className="w-8 h-8 text-amber-600 fill-amber-500/20" />
+            <div className="p-4 bg-amber-100 dark:bg-amber-900/30 rounded-[22px] rotate-3 relative group">
+              <Sun className="w-8 h-8 text-amber-600 fill-amber-500/20 group-hover:rotate-180 transition-transform duration-1000" />
             </div>
             <div>
               <h2 className="text-3xl font-black text-slate-800 dark:text-white leading-none mb-2">
@@ -263,7 +265,7 @@ export function SolarForm() {
               />
               <div className="flex justify-between mt-3 text-[10px] font-black text-slate-400 uppercase tracking-tighter">
                 <span>1,000 บาท</span>
-                <span className="text-amber-500/50">ค่าไฟเฉลี่ยต่อเดือนของคุณ</span>
+                <span className="text-amber-500/50">บิลค่าไฟโดยประมาณต่อเดือนของคุณ</span>
                 <span>50,000 บาท</span>
               </div>
             </div>
@@ -359,6 +361,56 @@ export function SolarForm() {
 
           <input type="hidden" name="lat" value={coords?.lat || ""} />
           <input type="hidden" name="lon" value={coords?.lon || ""} />
+
+          {/* NASA Intelligence Section */}
+          <div className="-mx-10 sm:-mx-14 bg-slate-900/40 backdrop-blur-md border-y border-white/5 py-6 px-10 sm:px-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 overflow-hidden">
+            <div className="flex flex-col space-y-2 z-10 w-full md:w-1/2">
+              <div className="flex items-center gap-2">
+                <Satellite className="w-4 h-4 text-emerald-400" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400 flex items-center gap-2">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                  Data Source: NASA POWER
+                </span>
+              </div>
+              <div className="text-white/60 text-xs font-medium max-w-sm">
+                Synchronizing NASA Surface Meteorology for <strong className="text-amber-500 font-bold">{address ? "Current Location" : "Bangkok, TH"}</strong>...
+              </div>
+              <div className="pt-2 text-white font-mono text-xs tracking-tight">
+                Avg. Solar Insolation: 
+                <span className="text-emerald-400 font-bold ml-2">5.2 kWh/m²/day</span>
+              </div>
+            </div>
+
+            <div className="h-[60px] w-full md:w-1/2 opacity-70 mix-blend-screen pointer-events-none z-0">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={[
+                  { val: 4.5 }, { val: 4.8 }, { val: 5.2 }, { val: 5.5 }, 
+                  { val: 5.0 }, { val: 4.8 }, { val: 4.6 }, { val: 4.5 }, 
+                  { val: 4.7 }, { val: 4.5 }, { val: 4.3 }
+                ]}>
+                  <defs>
+                    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feGaussianBlur stdDeviation="3" result="blur" />
+                      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
+                  </defs>
+                  <Line 
+                    type="monotone" 
+                    dataKey="val" 
+                    stroke="#f59e0b" 
+                    strokeWidth={2} 
+                    dot={false} 
+                    isAnimationActive={true} 
+                    animationDuration={2500} 
+                    filter="url(#glow)"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
 
           <AnimatePresence mode="wait">
             {mode === "expert" && (

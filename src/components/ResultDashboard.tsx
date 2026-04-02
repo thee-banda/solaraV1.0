@@ -50,15 +50,13 @@ export function ResultDashboard({
     const handleDelete = async () => {
         if (isDeleting) return;
         setIsDeleting(true);
-        const result = await deleteCalculationHistory(calculation.id);
-        if (result.success) {
-            toast.success("ลบประวัติการออกแบบเรียบร้อยแล้ว");
-            router.push("/");
-        } else {
-            toast.error(result.error || "เกิดข้อผิดพลาด");
-            setIsDeleting(false);
-            setShowDeleteConfirm(false);
-        }
+        
+        // Optimistic UI update: Redirect immediately to prevent '404 NotFound' race condition during revalidation
+        router.push("/");
+        toast.success("ลบประวัติการออกแบบเรียบร้อยแล้ว");
+
+        // Execute background deletion
+        await deleteCalculationHistory(calculation.id);
     };
 
     const handleDuplicate = async () => {

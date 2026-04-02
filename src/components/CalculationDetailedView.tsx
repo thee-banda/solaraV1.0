@@ -76,7 +76,7 @@ export function CalculationDetailedView({ calculation }: CalculationDetailedView
 
         const PANEL_CAPACITY = panelWattage / 1000;
         const SYSTEM_EFFICIENCY = efficiency / 100;
-        const peakSunHours = 4.2;
+        const peakSunHours = calculation.peakSunHours || 4.2;
         const orientationMultiplier = orientation === "South" ? 1.0 : orientation === "EastWest" ? 0.85 : 0.6;
 
         // Target the ENTIRE monthly bill to ensure high initial coverage
@@ -96,7 +96,7 @@ export function CalculationDetailedView({ calculation }: CalculationDetailedView
     const stats = useMemo(() => {
         const PANEL_CAPACITY = panelWattage / 1000;
         const SYSTEM_EFFICIENCY = efficiency / 100;
-        const peakSunHours = 4.2;
+        const peakSunHours = calculation.peakSunHours || 4.2;
         const orientationMultiplier = orientation === "South" ? 1.0 : orientation === "EastWest" ? 0.85 : 0.6;
         const sellBackRate = 2.2;
         const daytimeUsageRatio = calculation.daytimeUsageRatio || 60;

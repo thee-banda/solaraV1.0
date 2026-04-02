@@ -123,6 +123,7 @@ export async function calculateSolar(prevState: any, formData: FormData) {
         orientation: calculationMode === "EXPERT" ? orientation : "South",
         tilt: calculationMode === "EXPERT" ? tilt : 15,
         daytimeUsageRatio: calculationMode === "EXPERT" ? daytimeUsageRatio : 60,
+        peakSunHours: peakSunHours,
         userId,
       },
     });
@@ -154,7 +155,7 @@ export async function updateCalculationHistory(id: string, monthlyBill: number, 
     const unitPrice = calc.unitPrice || 4.7;
     const orientation = calc.orientation || "South";
     const daytimeUsageRatio = calc.daytimeUsageRatio || 60;
-    const peakSunHours = 4.2;
+    const peakSunHours = calc.peakSunHours || 4.2;
 
     const PANEL_CAPACITY = panelWattage / 1000;
     const SYSTEM_EFFICIENCY = efficiency / 100;

@@ -34,6 +34,7 @@ model Calculation {
   orientation      String?  @default("South") // South, EastWest, North
   tilt             Float?   @default(15)
   daytimeUsageRatio Float?  @default(0.6)
+  peakSunHours     Float?   @default(4.2)
 
   // Identity Segregation (No-login)
   userId           String   @default("anonymous")
