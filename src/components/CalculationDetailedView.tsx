@@ -41,6 +41,7 @@ import {
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { updateCalculationHistory } from "@/app/actions/solar";
 import { toast } from "sonner";
 import { CalculationActionMenu } from "./CalculationActionMenu";
@@ -55,6 +56,7 @@ export function CalculationDetailedView({ calculation }: CalculationDetailedView
     const [simMonthlyBill, setSimMonthlyBill] = useState(calculation.monthlyBill);
     const [isSaving, setIsSaving] = useState(false);
     const [hasSavedRef, setHasSavedRef] = useState(false);
+    const router = useRouter();
 
     // 1. Conservative Recommendation Logic (Zero Waste Baseline)
     const unitPrice = calculation.unitPrice || 4.7;
@@ -64,18 +66,27 @@ export function CalculationDetailedView({ calculation }: CalculationDetailedView
     const orientation = calculation.orientation || "South";
 
     const recommendedCount = useMemo(() => {
+        // Fallback for legacy DB records: if the user hasn't touched the bill and the record 
+        // is in its initial 'Recommended' state from the backend, use the DB's panelCount 
+        // to prevent mismatch with old algorithm generations.
+        if (!calculation.isOptimized && simMonthlyBill === calculation.monthlyBill) {
+            return calculation.panelCount;
+        }
+
         const PANEL_CAPACITY = panelWattage / 1000;
         const SYSTEM_EFFICIENCY = efficiency / 100;
         const peakSunHours = 4.2;
         const orientationMultiplier = orientation === "South" ? 1.0 : orientation === "EastWest" ? 0.85 : 0.6;
 
-        // Units needed to zero out the ACTUAL bill
-        const unitsNeededPerMonth = simMonthlyBill / unitPrice;
-        const unitsPerPanelPerMonth = PANEL_CAPACITY * peakSunHours * SYSTEM_EFFICIENCY * orientationMultiplier * 30;
+        // Target the ENTIRE monthly bill to ensure high initial coverage
+        const totalUnitsTarget = simMonthlyBill / unitPrice;
+        const totalDailyUnitsTarget = totalUnitsTarget / 30;
+        const unitsPerPanelPerDay = PANEL_CAPACITY * peakSunHours * SYSTEM_EFFICIENCY * orientationMultiplier;
 
-        // Conservative: Floor the result to ensure 100% consumption (0 waste)
-        return Math.max(1, Math.floor(unitsNeededPerMonth / unitsPerPanelPerMonth));
-    }, [simMonthlyBill, panelWattage, efficiency, orientation, unitPrice]);
+        // Humble Minus One (Full Coverage Baseline)
+        const recommendedPanels = Math.ceil(totalDailyUnitsTarget / unitsPerPanelPerDay);
+        return Math.max(1, recommendedPanels - 1);
+    }, [simMonthlyBill, panelWattage, efficiency, orientation, unitPrice, calculation.isOptimized, calculation.monthlyBill, calculation.panelCount]);
 
     const [simPanelCount, setSimPanelCount] = useState(calculation.panelCount);
     const [sellBackEnabled, setSellBackEnabled] = useState(calculation.sellBackEnabled || false);
@@ -87,24 +98,29 @@ export function CalculationDetailedView({ calculation }: CalculationDetailedView
         const peakSunHours = 4.2;
         const orientationMultiplier = orientation === "South" ? 1.0 : orientation === "EastWest" ? 0.85 : 0.6;
         const sellBackRate = 2.2;
+        const daytimeUsageRatio = calculation.daytimeUsageRatio || 60;
+
+        const currentSystemSizeKW = Number((simPanelCount * PANEL_CAPACITY).toFixed(2));
+        const currentTotalInvestment = Number((currentSystemSizeKW * costPerKW).toFixed(0));
 
         // Reactive Energy Generation Logic
-        const energyGeneratedKWh = simPanelCount * PANEL_CAPACITY * peakSunHours * SYSTEM_EFFICIENCY * orientationMultiplier * 30;
-        const billboardEquivalentUnits = simMonthlyBill / unitPrice;
-
+        const energyGeneratedKWh = currentSystemSizeKW * peakSunHours * 30 * SYSTEM_EFFICIENCY * orientationMultiplier;
+        
+        // Cap consumption by total equivalent units (No daytime restriction to match 100% bill tracking)
+        const billboardEquivalentUnits = (simMonthlyBill / unitPrice);
+        
         const selfConsumptionUnits = Math.min(energyGeneratedKWh, billboardEquivalentUnits);
         const selfConsumptionSaving = selfConsumptionUnits * unitPrice;
-        const excessUnits = Math.max(0, energyGeneratedKWh - billboardEquivalentUnits);
+        
+        const excessUnits = Math.max(0, energyGeneratedKWh - selfConsumptionUnits);
         const sellBackIncome = sellBackEnabled ? (excessUnits * sellBackRate) : 0;
 
-        const currentMonthlySavings = selfConsumptionSaving + sellBackIncome;
-        const isSellingBack = sellBackEnabled && energyGeneratedKWh > billboardEquivalentUnits;
-        const isOverproducing = energyGeneratedKWh > billboardEquivalentUnits;
-        const isUpselling = simPanelCount > recommendedCount;
-
-        const currentSystemSizeKW = (simPanelCount * PANEL_CAPACITY);
-        const currentTotalInvestment = currentSystemSizeKW * costPerKW;
+        const currentMonthlySavings = Number((selfConsumptionSaving + sellBackIncome).toFixed(0));
         const currentPaybackYears = currentMonthlySavings > 0 ? (currentTotalInvestment / (currentMonthlySavings * 12)).toFixed(1) : "0.0";
+        
+        const isSellingBack = sellBackEnabled && excessUnits > 0;
+        const isOverproducing = excessUnits > 0;
+        const isUpselling = simPanelCount > recommendedCount;
 
         // ROI Projection
         const roiData = [];
@@ -173,6 +189,7 @@ export function CalculationDetailedView({ calculation }: CalculationDetailedView
             });
             setHasSavedRef(true);
             setIsManual(false); // Hide the global simulator banner but keep local state
+            router.refresh();
         } else {
             toast.error(result.error);
         }

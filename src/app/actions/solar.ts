@@ -77,17 +77,17 @@ export async function calculateSolar(prevState: any, formData: FormData) {
     // Use specific orientation multipliers to refine generation potential
     const orientationMultiplier = orientation === "South" ? 1.0 : orientation === "EastWest" ? 0.85 : 0.6;
 
-    // Calculate daily units target for full monthly coverage
+    // Calculate daily units target for FULL monthly coverage
     const totalUnitsTarget = monthlyBill / unitPrice / 30;
     const unitsPerPanelPerDay = (PANEL_CAPACITY * peakSunHours * SYSTEM_EFFICIENCY * orientationMultiplier);
 
     /* 
-     * Humble Minus One Strategy:
+     * Humble Minus One Strategy (Full Coverage Baseline):
      * We calculate the panel count for full monthly coverage and subtract 1.
-     * This ensures the initial recommendation is conservative and maintains a fast payback period.
+     * This avoids massive over-installation while giving a high initial target.
      */
-    const fullCoveragePanels = Math.ceil(totalUnitsTarget / unitsPerPanelPerDay);
-    const panelCount = Math.max(1, fullCoveragePanels - 1);
+    const recommendedPanels = Math.ceil(totalUnitsTarget / unitsPerPanelPerDay);
+    const panelCount = Math.max(1, recommendedPanels - 1);
 
     const systemSizeKW = Number((panelCount * PANEL_CAPACITY).toFixed(2));
     const totalInvestment = Number((systemSizeKW * costPerKW).toFixed(0));
@@ -96,9 +96,8 @@ export async function calculateSolar(prevState: any, formData: FormData) {
     const baseMonthlySolarUnits = systemSizeKW * peakSunHours * 30 * SYSTEM_EFFICIENCY * orientationMultiplier;
     const baseMonthlySavingsValue = baseMonthlySolarUnits * unitPrice;
 
-    // Maximum savings possible is still capped by the actual daytime portion of the bill
-    const daytimeBillCap = monthlyBill * (daytimeUsageRatio / 100);
-    const monthlySavings = Number(Math.min(baseMonthlySavingsValue, daytimeBillCap).toFixed(0));
+    // Maximum savings possible is capped by the total monthly bill (assuming 100% offset target)
+    const monthlySavings = Number(Math.min(baseMonthlySavingsValue, monthlyBill).toFixed(0));
 
     const paybackYears = Number((totalInvestment / (monthlySavings * 12)).toFixed(1));
     const co2Reduction = Number((baseMonthlySolarUnits * CO2_FACTOR).toFixed(0));
@@ -154,6 +153,7 @@ export async function updateCalculationHistory(id: string, monthlyBill: number, 
     const efficiency = calc.efficiency || 85;
     const unitPrice = calc.unitPrice || 4.7;
     const orientation = calc.orientation || "South";
+    const daytimeUsageRatio = calc.daytimeUsageRatio || 60;
     const peakSunHours = 4.2;
 
     const PANEL_CAPACITY = panelWattage / 1000;
@@ -161,19 +161,23 @@ export async function updateCalculationHistory(id: string, monthlyBill: number, 
     const orientationMultiplier = orientation === "South" ? 1.0 : orientation === "EastWest" ? 0.85 : 0.6;
     const sellBackRate = 2.2;
 
-    const systemSizeKW = panelCount * PANEL_CAPACITY;
-    const totalInvestment = systemSizeKW * costPerKW;
+    const systemSizeKW = Number((panelCount * PANEL_CAPACITY).toFixed(2));
+    const totalInvestment = Number((systemSizeKW * costPerKW).toFixed(0));
 
-    const energyGeneratedKWh = panelCount * PANEL_CAPACITY * peakSunHours * SYSTEM_EFFICIENCY * orientationMultiplier * 30;
-    const billboardEquivalentUnits = monthlyBill / unitPrice;
-
+    // Reactive Energy Generation Logic matching both backend and frontend
+    const energyGeneratedKWh = systemSizeKW * peakSunHours * 30 * SYSTEM_EFFICIENCY * orientationMultiplier;
+    
+    // Cap consumption by equivalent total units (no daytime restriction since target is 100% of bill)
+    const billboardEquivalentUnits = (monthlyBill / unitPrice);
+    
     const selfConsumptionUnits = Math.min(energyGeneratedKWh, billboardEquivalentUnits);
     const selfConsumptionSaving = selfConsumptionUnits * unitPrice;
-    const excessUnits = Math.max(0, energyGeneratedKWh - billboardEquivalentUnits);
+    
+    const excessUnits = Math.max(0, energyGeneratedKWh - selfConsumptionUnits);
     const sellBackIncome = sellBackEnabled ? (excessUnits * sellBackRate) : 0;
 
-    const monthlySavings = selfConsumptionSaving + sellBackIncome;
-    const paybackYears = totalInvestment / (monthlySavings * 12);
+    const monthlySavings = Number((selfConsumptionSaving + sellBackIncome).toFixed(0));
+    const paybackYears = Number((totalInvestment / (monthlySavings * 12)).toFixed(1));
 
     await db.calculation.update({
       where: { id },
@@ -183,7 +187,7 @@ export async function updateCalculationHistory(id: string, monthlyBill: number, 
         systemSizeKW,
         totalInvestment,
         monthlySavings,
-        paybackYears: Number(paybackYears.toFixed(1)),
+        paybackYears,
         isOptimized: true,
         sellBackEnabled
       }
