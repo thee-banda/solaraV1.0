@@ -21,6 +21,7 @@ import {
     Leaf,
     Calendar,
     HardDrive,
+    Save,
     Ruler,
     CarFront,
     Trees,
@@ -397,14 +398,14 @@ export function CalculationDetailedView({ calculation }: CalculationDetailedView
                                         <button
                                             onClick={handleSave}
                                             disabled={isSaving}
-                                            className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white py-4 rounded-3xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 transition-all shadow-[0_10px_30px_rgba(79,70,229,0.3)] shadow-indigo-600/20"
+                                            className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white py-4 rounded-3xl font-medium uppercase tracking-widest text-xs flex items-center justify-center gap-2 transition-all shadow-[0_10px_30px_rgba(79,70,229,0.3)] shadow-indigo-600/20"
                                         >
                                             {isSaving ? (
-                                                <RefreshCcw className="w-5 h-5 animate-spin" />
+                                                <RefreshCcw size={18} className="animate-spin" />
                                             ) : (
-                                                <HardDrive className="w-5 h-5" />
+                                                <Save size={18} />
                                             )}
-                                            {isSaving ? "กำลังบันทึก..." : "💾 บันทึกการออกแบบนี้"}
+                                            <span>{isSaving ? "กำลังบันทึก..." : "บันทึกการออกแบบนี้"}</span>
                                         </button>
                                     </motion.div>
                                 )}
