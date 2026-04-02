@@ -74,20 +74,30 @@ export async function calculateSolar(prevState: any, formData: FormData) {
     const SYSTEM_EFFICIENCY = efficiency / 100;
     const CO2_FACTOR = 0.5;
 
-    const unitsPerDay = monthlyBill / unitPrice / 30;
-    const systemSizeKW = Number(((unitsPerDay / (peakSunHours * SYSTEM_EFFICIENCY)) * 1.1).toFixed(2));
-
-    const panelCount = Math.ceil(systemSizeKW / PANEL_CAPACITY);
-    const totalInvestment = Number((systemSizeKW * costPerKW).toFixed(0));
+    // Use specific orientation multipliers to refine generation potential
     const orientationMultiplier = orientation === "South" ? 1.0 : orientation === "EastWest" ? 0.85 : 0.6;
 
-    // Base potential units from solar system
+    // Calculate daily units target for full monthly coverage
+    const totalUnitsTarget = monthlyBill / unitPrice / 30;
+    const unitsPerPanelPerDay = (PANEL_CAPACITY * peakSunHours * SYSTEM_EFFICIENCY * orientationMultiplier);
+
+    /* 
+     * Humble Minus One Strategy:
+     * We calculate the panel count for full monthly coverage and subtract 1.
+     * This ensures the initial recommendation is conservative and maintains a fast payback period.
+     */
+    const fullCoveragePanels = Math.ceil(totalUnitsTarget / unitsPerPanelPerDay);
+    const panelCount = Math.max(1, fullCoveragePanels - 1);
+
+    const systemSizeKW = Number((panelCount * PANEL_CAPACITY).toFixed(2));
+    const totalInvestment = Number((systemSizeKW * costPerKW).toFixed(0));
+
+    // Recalculate base monthly solar units based on the final optimized system
     const baseMonthlySolarUnits = systemSizeKW * peakSunHours * 30 * SYSTEM_EFFICIENCY * orientationMultiplier;
     const baseMonthlySavingsValue = baseMonthlySolarUnits * unitPrice;
 
-    // Maximum savings possible is the daytime portion of the bill
+    // Maximum savings possible is still capped by the actual daytime portion of the bill
     const daytimeBillCap = monthlyBill * (daytimeUsageRatio / 100);
-
     const monthlySavings = Number(Math.min(baseMonthlySavingsValue, daytimeBillCap).toFixed(0));
 
     const paybackYears = Number((totalInvestment / (monthlySavings * 12)).toFixed(1));
@@ -184,5 +194,40 @@ export async function updateCalculationHistory(id: string, monthlyBill: number, 
   } catch (error) {
     console.error("Save Error:", error);
     return { error: "ไม่สามารถบันทึกการออกแบบได้" };
+  }
+}
+
+export async function deleteCalculationHistory(id: string) {
+  try {
+    await db.calculation.delete({
+      where: { id },
+    });
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    console.error("Delete Error:", error);
+    return { error: "ไม่สามารถลบประวัติการออกแบบได้" };
+  }
+}
+
+export async function duplicateCalculationHistory(id: string) {
+  try {
+    const original = await db.calculation.findUnique({ where: { id } });
+    if (!original) throw new Error("Calculation not found");
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id: _, createdAt: __, ...data } = original;
+
+    await db.calculation.create({
+      data: {
+        ...data,
+      },
+    });
+
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    console.error("Duplicate Error:", error);
+    return { error: "ไม่สามารถทำสำเนาการออกแบบได้" };
   }
 }

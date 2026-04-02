@@ -43,6 +43,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useMemo } from "react";
 import { updateCalculationHistory } from "@/app/actions/solar";
 import { toast } from "sonner";
+import { CalculationActionMenu } from "./CalculationActionMenu";
+import { ResultDashboard } from "./ResultDashboard";
 
 interface CalculationDetailedViewProps {
     calculation: Calculation;
@@ -218,101 +220,17 @@ export function CalculationDetailedView({ calculation }: CalculationDetailedView
 
             <div className="relative z-10 max-w-7xl mx-auto px-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-                {/* Main Header & Simulator Controls */}
-                <div className="lg:col-span-12">
-                    <div className={`bg-white/[0.03] backdrop-blur-3xl p-8 sm:p-12 rounded-[48px] border transition-all duration-500 ${isManual ? 'border-amber-500/30 shadow-[0_0_50px_rgba(245,158,11,0.1)]' : 'border-white/10'} flex flex-col xl:flex-row xl:items-center justify-between gap-12`}>
-                        <div className="space-y-6">
-                            <div className="flex items-center gap-3 text-[10px] font-black text-amber-500 uppercase tracking-[0.4em]">
-                                {isExpert ? <ShieldCheck className="w-4 h-4" /> : <Activity className="w-4 h-4" />}
-                                {isManual ? "Interactive System Override" : isExpert ? "Professional Precision Analysis" : "Smart Recommendation Summary"}
-                            </div>
-                            <h1 className="text-6xl sm:text-7xl font-black tracking-tighter leading-tight">
-                                {isManual ? "จำลองระบบใหม่" : "สรุปผลความคุ้มค่า"}
-                            </h1>
-                            <div className="flex flex-wrap items-center gap-6">
-                                <div className="flex items-center gap-2 text-slate-400 font-bold text-sm bg-white/5 px-4 py-2 rounded-full border border-white/5">
-                                    <MapPin className="w-4 h-4 text-emerald-500" /> {calculation.location}
-                                </div>
-                                {isManual && (
-                                    <button
-                                        onClick={resetSimulator}
-                                        className="text-[10px] font-black text-amber-500 hover:text-white uppercase tracking-widest flex items-center gap-2 transition-colors"
-                                    >
-                                        <RefreshCcw className="w-4 h-4" /> รีเซ็ตค่าแนะนำ
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Real-time Stats Display */}
-                        <div className="flex items-center gap-8 sm:gap-14 bg-white/[0.05] p-8 sm:p-10 rounded-[40px] border border-white/5">
-                            <div className="space-y-2">
-                                <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">จุดคุ้มทุน (ปี)</div>
-                                <motion.div
-                                    key={stats.paybackYears}
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    className="text-5xl sm:text-6xl font-black text-white"
-                                >
-                                    {stats.paybackYears}
-                                </motion.div>
-                            </div>
-                            <div className="h-20 w-px bg-white/10 hidden sm:block" />
-                            <div className="space-y-4">
-                                <div className="flex items-center gap-2">
-                                    <div className="text-[10px] font-black text-emerald-500 uppercase tracking-widest leading-none">
-                                        {stats.isUpselling ? "ติดตั้ง (รวมกำไรขายคืน)" : `แนะนำการติดตั้งที่จำนวน ${recommendedCount} แผง`}
-                                    </div>
-                                    <div className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
-                                        {stats.isUpselling ? "(เริ่มมีรายได้ส่วนเพิ่ม)" : "(โดยไม่มีไฟฟ้าส่วนเกินไหลทิ้ง)"}
-                                    </div>
-                                </div>
-                                <motion.div
-                                    key={stats.monthlySavings}
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{ duration: 0.5 }}
-                                    className={`text-5xl sm:text-7xl font-black tabular-nums transition-colors duration-500 ${stats.isSellingBack
-                                        ? 'text-emerald-400'
-                                        : stats.isOverproducing
-                                            ? 'text-amber-500'
-                                            : 'text-emerald-400'
-                                        }`}
-                                >
-                                    ฿{stats.monthlySavings.toLocaleString()}
-                                </motion.div>
-
-                                {stats.isOverproducing && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        className="space-y-3"
-                                    >
-                                        {sellBackEnabled ? (
-                                            <>
-                                                <div className="text-[10px] font-bold text-emerald-500/80 uppercase tracking-tight">
-                                                    ผลิตเกินใช้งาน {Math.round(stats.excessUnits).toLocaleString()} หน่วย (รายได้ส่วนเพิ่ม ฿{Math.round(stats.monthlySavings - (simMonthlyBill / unitPrice * unitPrice)).toLocaleString()} / เดือน)
-                                                </div>
-                                                <div className="flex items-center gap-2 text-emerald-400 bg-emerald-500/5 border border-emerald-500/10 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider">
-                                                    <ZapIcon className="w-3 h-3" /> เริ่มสร้างรายได้จากการขายไฟ (โครงการโซลาร์ภาคประชาชน)
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <div className="text-[10px] font-bold text-amber-500/80 uppercase tracking-tight">
-                                                    สูญเสียพลังงานส่วนเกิน {Math.round(stats.excessUnits).toLocaleString()} หน่วย/เดือน
-                                                </div>
-                                                <div className="flex items-center gap-2 text-amber-500 bg-amber-500/5 border border-amber-500/10 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider">
-                                                    <Info className="w-3 h-3" /> ติดแผงเกินความคุ้มค่า: ไม่มีการขายไฟคืน (แนะนำให้เปิด Sell-back Mode)
-                                                </div>
-                                            </>
-                                        )}
-                                    </motion.div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <ResultDashboard
+                    calculation={calculation}
+                    stats={stats}
+                    isManual={isManual}
+                    isExpert={isExpert}
+                    resetSimulator={resetSimulator}
+                    recommendedCount={recommendedCount}
+                    sellBackEnabled={sellBackEnabled}
+                    simMonthlyBill={simMonthlyBill}
+                    unitPrice={unitPrice}
+                />
 
                 {/* Sidebar Controls: Adjust System */}
                 <div className="lg:col-span-4 space-y-6">

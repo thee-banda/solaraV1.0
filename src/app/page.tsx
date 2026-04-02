@@ -15,6 +15,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import Link from "next/link";
+import { CalculationActionMenu } from "@/components/CalculationActionMenu";
 
 export default async function Home() {
   const cookieStore = await cookies();
@@ -152,6 +153,9 @@ export default async function Home() {
                 href={`/calculation/${calc.id}`}
                 className="group bg-white/[0.02] p-6 sm:p-8 rounded-[32px] sm:rounded-[48px] border border-white/5 hover:border-amber-500/30 hover:bg-white/[0.04] active:scale-[0.98] transition-all duration-300 block relative overflow-hidden"
               >
+                <div className="absolute top-6 right-6 z-20">
+                  <CalculationActionMenu id={calc.id} />
+                </div>
                 <div className="flex flex-col md:flex-row md:items-center gap-8 md:gap-10">
                   {/* Primary Info & Identity */}
                   <div className="flex items-center gap-6 shrink-0">

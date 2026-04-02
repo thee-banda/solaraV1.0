@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import { CalculationDetailedView } from "@/components/CalculationDetailedView";
 
 interface PageProps {
@@ -10,7 +10,7 @@ export default async function CalculationDetailPage({ params }: PageProps) {
   const { id } = await params;
 
   if (!id) {
-    notFound();
+    redirect("/");
   }
 
   const calculation = await db.calculation.findUnique({
@@ -18,7 +18,7 @@ export default async function CalculationDetailPage({ params }: PageProps) {
   });
 
   if (!calculation) {
-    notFound();
+    redirect("/");
   }
 
   return <CalculationDetailedView key={id} calculation={calculation} />;
