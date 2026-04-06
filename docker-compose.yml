@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: solar_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: solar
+      POSTGRES_PASSWORD: [PASSWORD]
+      POSTGRES_DB: solar_calculator
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
