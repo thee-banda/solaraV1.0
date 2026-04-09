@@ -8,7 +8,7 @@
   <p><b>Precision Solar Planning powered by NASA POWER Data.</b></p>
 
   <p>
-    <b>English</b> | <a href="README-th.md">ภาษาไทย</a>
+    <a href="#english">English</a> | <a href="#thai">ภาษาไทย</a>
   </p>
   
   <p>
@@ -22,7 +22,12 @@
 
 <br />
 
-## 📖 The "Why" (Core Features)
+---
+
+<a name="english"></a>
+## 🇺🇸 English Version
+
+### 📖 The "Why" (Core Features)
 
 Solara is not just a calculator; it's an **Intelligence Engine** designed to demystify solar investments and prevent unnecessary overspending on oversized panels.
 
@@ -30,11 +35,7 @@ Solara is not just a calculator; it's an **Intelligence Engine** designed to dem
 *   🛰️ **NASA Surface Meteorology Integration:** Real-world ROI requires real-world data. We fetch live irradiance and meteorological data exactly at your coordinates via the **NASA POWER API**, adjusting peak sun hours to mathematical exactness, ensuring our yield equations match geographic reality.
 *   🔥 **Orbital Dashboard & Cinematic UX:** Premium interfaces build trust. Solara utilizes `framer-motion` to orchestrate fluid animations, a glowing responsive chart mapped to regional generation models, interactive Leaflet maps, and an architecture that strictly segregates calculation histories smoothly inside atomic Next.js routes.
 
----
-
-## 🛠️ Technical Showcase (The Stack)
-
-Solara is built with a modern, high-performance web stack focused on edge delivery and fluid interaction.
+### 🛠️ Technical Showcase (The Stack)
 
 | Category | Technologies Used |
 | :--- | :--- |
@@ -44,93 +45,56 @@ Solara is built with a modern, high-performance web stack focused on edge delive
 | **Deployment** | Docker & Docker Compose (Containerized for DigitalOcean/AWS) |
 | **Integrations**| Leaflet.js (Geospatial Mapping), NASA POWER (Meteorology) |
 
----
-
-## 🐳 Docker Tutorial (Recommended)
-
-The fastest way to get Solara running is using Docker. This setup includes the application engine and a local PostgreSQL database.
-
-### 1. Prerequisites
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
-- [Git](https://git-scm.com/) installed.
-
-### 2. Launch the Application
-Clone the repository and run the pre-configured compose file:
+### 🐳 Docker Tutorial (Recommended)
 
 ```bash
-# Clone the repository
+# 1. Clone & Setup
 git clone https://github.com/your-username/solara.git
 cd solara
 
-# Start the engine and database
+# 2. Launch
 docker-compose up -d --build
-```
 
-### 3. Initialize Database
-Once the containers are healthy, run the Prisma sync to set up your tables:
-
-```bash
-# Sync database schema
+# 3. Sync Database
 docker exec -it solara_app npx prisma db push
-
-# (Optional) Seed the database if you have seeds
-# docker exec -it solara_app npx prisma db seed
 ```
-
-### 4. Access the Dashboard
-Open your browser and navigate to:
-**[http://localhost:3000](http://localhost:3000)**
+Access at: **[http://localhost:3000](http://localhost:3000)**
 
 ---
 
-## 🚀 Native Installation (Alternative)
+<a name="thai"></a>
+## 🇹🇭 ฉบับภาษาไทย
 
-Follow these steps to deploy natively for local development.
+### 📖 ทำไมต้อง Solara? (คุณสมบัติหลัก)
 
-### 1. Clone & Initialize
+Solara ไม่ใช่แค่เครื่องคิดเลขคำนวณค่าไฟธรรมดา แต่คือ **Intelligence Engine** ที่ออกแบบมาเพื่อลดความซับซ้อนในการลงทุนโซลาร์เซลล์ และป้องกันการลงทุนเกินตัว (Oversized) โดยไม่จำเป็น
+
+*   🧠 **ตรรกะ 'Humble Optimizer':** เราวิเคราะห์และแนะนำจำนวนแผงที่สอดรับกับ **เพดานการใช้ไฟช่วงกลางวัน** ของคุณจริงๆ ทำให้ได้จุดคุ้มทุนที่รวดเร็วที่สุด
+*   🛰️ **การผสานข้อมูลจาก NASA:** ดึงข้อมูลความเข้มแสงอาทิตย์ (Irradiance) และสภาพอากาศสดๆ จากพิกัดของคุณผ่านมายัง **NASA POWER API** เพื่อคำนวณชั่วโมงแดดเฉลี่ยที่แม่นยำที่สุด
+*   🔥 **แดชบอร์ดระดับพรีเมียม (Cinematic UX):** ใช้ `framer-motion` ในการสร้างแอนิเมชันที่ลื่นไหล, กราฟแสดงผลที่ตอบสนองตามรุ่นการผลิตจริงในพื้นที่ และแผนที่แบบโต้ตอบได้
+
+### 🛠️ เทคโนโลยีที่ใช้ (The Stack)
+
+| หมวดหมู่ | เทคโนโลยีที่ใช้ |
+| :--- | :--- |
+| **Framework** | Next.js 15+ (App Router, React Server Actions) |
+| **Database** | Prisma ORM, PostgreSQL (Vercel Postgres หรือ Docker) |
+| **Deployment** | Docker & Docker Compose (พร้อมสำหรับ DigitalOcean/AWS) |
+
+### 🐳 คู่มือการใช้งานผ่าน Docker
 
 ```bash
-# Clone the repository
+# 1. Clone โปรเจกต์
 git clone https://github.com/your-username/solara.git
 cd solara
 
-# Install dependencies
-npm install
+# 2. เริ่มต้นระบบ
+docker-compose up -d --build
+
+# 3. ซิงค์โครงสร้างฐานข้อมูล
+docker exec -it solara_app npx prisma db push
 ```
-
-### 2. Environment Configuration
-
-Create a `.env` file at the root. Use the provided example template:
-
-```bash
-cp .env.example .env
-```
-
-### 3. Database Migration
-
-```bash
-# Synchronize the schema
-npx prisma db push
-
-# Generate Prisma Client
-npx prisma generate
-```
-
-### 4. Start Development Server
-
-```bash
-npm run dev
-```
-
----
-
-## 🔬 Project Philosophy: The Smart Daytime Cap
-
-Standard solar calculators try to sell you more panels. *We try to get your money back faster.* 
-
-If your monthly bill is 5,000 THB, but your daytime usage is only 60%, Solara recognizes your actual "Solar Target" is 3,000 THB. Recommending a 5,000 THB solar array means you are either pushing excess power back to the grid for pennies, or watching it go to waste. 
-
-By employing the **Smart Daytime Cap**, we calculate the exact number of equivalent daily units needed for daytime operations, apply a ceiling function, and execute the **"Minus One"** constraint buffer. This creates a lean, highly efficient system out of the gate, maximizing ROI and bringing the payback period into the hyper-optimal range of 4-6 years. 
+เข้าใช้งานที่: **[http://localhost:3000](http://localhost:3000)**
 
 ---
 
