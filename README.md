@@ -6,6 +6,10 @@
 
   <h1>☀️ SOLARA.</h1>
   <p><b>Precision Solar Planning powered by NASA POWER Data.</b></p>
+
+  <p>
+    <b>English</b> | <a href="README-th.md">ภาษาไทย</a>
+  </p>
   
   <p>
     <img src="https://img.shields.io/badge/Next.js-15+-black?style=for-the-badge&logo=next.js" alt="Next.js" />
