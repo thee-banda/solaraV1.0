@@ -5,7 +5,7 @@
   <br />
 
   <h1>SOLARA.</h1>
-  <p><b>Precision Solar Planning powered by NASA POWER Data.</b></p>
+  <p><b>Solar ROI optimization driven by NASA POWER meteorological data.</b></p>
 
   <p>
     <a href="#english">English</a> | <a href="#thai">ภาษาไทย</a>
@@ -27,35 +27,29 @@
 <a name="english"></a>
 ## English Version
 
-### The "Why" (Core Features)
+### Core Logic
 
-Solara is not just a calculator; it's an **Intelligence Engine** designed to demystify solar investments and prevent unnecessary overspending on oversized panels.
+Solara optimizes solar panel recommendations by prioritizing self-consumption over grid export, minimizing payback periods.
 
-*   **The 'Humble Optimizer' Logic:** Most calculators recommend panels to cover your entire bill. Solara realizes this is flawed. Without a battery, energy generated at night is 0, and energy generated during the day can only offset daytime usage. The Humble Optimizer aggressively prioritizes 100% self-consumption, capping the recommendation to strictly match your **Daytime Usage Ceiling**—resulting in a vastly faster payback period.
-*   **NASA Surface Meteorology Integration:** Real-world ROI requires real-world data. We fetch live irradiance and meteorological data exactly at your coordinates via the **NASA POWER API**, adjusting peak sun hours to mathematical exactness, ensuring our yield equations match geographic reality.
-*   **Orbital Dashboard & Cinematic UX:** Premium interfaces build trust. Solara utilizes `framer-motion` to orchestrate fluid animations, a glowing responsive chart mapped to regional generation models, interactive Leaflet maps, and an architecture that strictly segregates calculation histories smoothly inside atomic Next.js routes.
+*   **Smart Daytime Cap:** Recommendations are capped by daytime energy usage to prevent oversizing in systems without battery storage.
+*   **Meteorological Precision:** Integrates solar irradiance and weather data from the **NASA POWER API** based on exact GPS coordinates.
+*   **Architecture:** Built with Next.js 15, Framer Motion for data visualization, and Prisma for scalable history tracking.
 
-### Technical Showcase (The Stack)
+### Technical Stack
 
-| Category | Technologies Used |
+| Category | Component |
 | :--- | :--- |
-| **Framework** | Next.js 15+ (App Router, React Server Actions) |
-| **Database** | Prisma ORM, PostgreSQL (Vercel Postgres, Supabase, or self-hosted) |
-| **UI Engine** | Tailwind CSS, Framer Motion, Recharts, Lucide Icons |
-| **Deployment** | Docker & Docker Compose (Containerized for DigitalOcean/AWS) |
-| **Integrations**| Leaflet.js (Geospatial Mapping), NASA POWER (Meteorology) |
+| **Framework** | Next.js 15+ (App Router, Server Actions) |
+| **Data Engine** | Prisma ORM, PostgreSQL |
+| **UI/UX** | Tailwind CSS, Framer Motion, Recharts |
+| **Integration**| Leaflet.js, NASA POWER API |
 
-### Docker Tutorial (Recommended)
+### Deployment (Docker)
 
 ```bash
-# 1. Clone & Setup
 git clone https://github.com/your-username/solara.git
 cd solara
-
-# 2. Launch
 docker-compose up -d --build
-
-# 3. Sync Database
 docker exec -it solara_app npx prisma db push
 ```
 Access at: **[http://localhost:3000](http://localhost:3000)**
@@ -65,33 +59,28 @@ Access at: **[http://localhost:3000](http://localhost:3000)**
 <a name="thai"></a>
 ## ภาษาไทย (Thai Version)
 
-### ทำไมต้อง Solara? (คุณสมบัติหลัก)
+### ระบบการคำนวณ
 
-Solara ไม่ใช่แค่เครื่องคิดเลขคำนวณค่าไฟธรรมดา แต่คือ **Intelligence Engine** ที่ออกแบบมาเพื่อลดความซับซ้อนในการลงทุนโซลาร์เซลล์ และป้องกันการลงทุนเกินตัว (Oversized) โดยไม่จำเป็น
+Solara คำนวณจุดคุ้มทุนโซลาร์เซลล์โดยเน้นสัดส่วนการใช้เอง (Self-consumption) เพื่อคืนทุนให้เร็วที่สุด
 
-*   **ตรรกะ 'Humble Optimizer':** เราวิเคราะห์และแนะนำจำนวนแผงที่สอดรับกับ **เพดานการใช้ไฟช่วงกลางวัน** ของคุณจริงๆ ทำให้ได้จุดคุ้มทุนที่รวดเร็วที่สุด
-*   **การผสานข้อมูลจาก NASA:** ดึงข้อมูลความเข้มแสงอาทิตย์ (Irradiance) และสภาพอากาศสดๆ จากพิกัดของคุณผ่านมายัง **NASA POWER API** เพื่อคำนวณชั่วโมงแดดเฉลี่ยที่แม่นยำที่สุด
-*   **แดชบอร์ดระดับพรีเมียม (Cinematic UX):** ใช้ `framer-motion` ในการสร้างแอนิเมชันที่ลื่นไหล, กราฟแสดงผลที่ตอบสนองตามรุ่นการผลิตจริงในพื้นที่ และแผนที่แบบโต้ตอบได้
+*   **Smart Daytime Cap:** จำกัดการแนะนำจำนวนแผงให้ไม่เกินยอดการใช้ไฟช่วงกลางวัน ป้องกันการลงทุนเกินตัวในระบบที่ไม่มีแบตเตอรี่
+*   **ข้อมูล NASA POWER:** ใช้ข้อมูลความเข้มแสงอาทิตย์จริงตามพิกัดรุ้งแวง (GPS) จาก NASA เพื่อความแม่นยำทางสถิติ
+*   **สถาปัตยกรรม:** พัฒนาด้วย Next.js 15 พร้อมระบบจัดการฐานข้อมูล Prisma และการแสดงผลข้อมูลด้วย Recharts
 
-### เทคโนโลยีที่ใช้ (The Stack)
+### เทคโนโลยี
 
 | หมวดหมู่ | เทคโนโลยีที่ใช้ |
 | :--- | :--- |
-| **Framework** | Next.js 15+ (App Router, React Server Actions) |
-| **Database** | Prisma ORM, PostgreSQL (Vercel Postgres หรือ Docker) |
-| **Deployment** | Docker & Docker Compose (พร้อมสำหรับ DigitalOcean/AWS) |
+| **Framework** | Next.js 15+ |
+| **Database** | Prisma ORM, PostgreSQL |
+| **API**| NASA POWER, Leaflet.js |
 
-### คู่มือการใช้งานผ่าน Docker
+### การติดตั้ง (Docker)
 
 ```bash
-# 1. Clone โปรเจกต์
 git clone https://github.com/your-username/solara.git
 cd solara
-
-# 2. เริ่มต้นระบบ
 docker-compose up -d --build
-
-# 3. ซิงค์โครงสร้างฐานข้อมูล
 docker exec -it solara_app npx prisma db push
 ```
 เข้าใช้งานที่: **[http://localhost:3000](http://localhost:3000)**
