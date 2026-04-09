@@ -1,19 +1,18 @@
 <div align="center">
-  <!-- Place your hero image or banner here. Example: <img src="public/hero-banner.png" alt="Solara Hero Banner" width="100%" /> -->
-  <img src="https://via.placeholder.com/1200x400/0f172a/f59e0b?text=Solara+Hero+Banner" alt="Solara Hero Banner" width="100%" />
+  <img src="public/hero-banner.png" alt="SOLARA." width="100%" />
 
   <br />
   <br />
 
-  <h1>☀️ Solara</h1>
+  <h1>☀️ SOLARA.</h1>
   <p><b>Precision Solar Planning powered by NASA POWER Data.</b></p>
-
+  
   <p>
     <img src="https://img.shields.io/badge/Next.js-15+-black?style=for-the-badge&logo=next.js" alt="Next.js" />
     <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
     <img src="https://img.shields.io/badge/NASA_POWER-API-0b3d91?style=for-the-badge&logo=nasa" alt="NASA POWER" />
     <img src="https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white" alt="Prisma" />
-    <img src="https://img.shields.io/badge/License-MIT-emerald?style=for-the-badge" alt="License" />
+    <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
   </p>
 </div>
 
@@ -43,9 +42,46 @@ Solara is built with a modern, high-performance web stack focused on edge delive
 
 ---
 
-## 🚀 Installation & Setup (The Senior Way)
+## 🐳 Docker Tutorial (Recommended)
 
-Follow these steps to deploy your localized intelligence engine.
+The fastest way to get Solara running is using Docker. This setup includes the application engine and a local PostgreSQL database.
+
+### 1. Prerequisites
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
+- [Git](https://git-scm.com/) installed.
+
+### 2. Launch the Application
+Clone the repository and run the pre-configured compose file:
+
+```bash
+# Clone the repository
+git clone https://github.com/your-username/solara.git
+cd solara
+
+# Start the engine and database
+docker-compose up -d --build
+```
+
+### 3. Initialize Database
+Once the containers are healthy, run the Prisma sync to set up your tables:
+
+```bash
+# Sync database schema
+docker exec -it solara_app npx prisma db push
+
+# (Optional) Seed the database if you have seeds
+# docker exec -it solara_app npx prisma db seed
+```
+
+### 4. Access the Dashboard
+Open your browser and navigate to:
+**[http://localhost:3000](http://localhost:3000)**
+
+---
+
+## 🚀 Native Installation (Alternative)
+
+Follow these steps to deploy natively for local development.
 
 ### 1. Clone & Initialize
 
@@ -54,53 +90,32 @@ Follow these steps to deploy your localized intelligence engine.
 git clone https://github.com/your-username/solara.git
 cd solara
 
-# Install dependencies (NPM, Yarn, or pnpm)
+# Install dependencies
 npm install
 ```
 
 ### 2. Environment Configuration
 
-Create a `.env` file at the root of your project. Use the provided example template:
+Create a `.env` file at the root. Use the provided example template:
 
 ```bash
 cp .env.example .env
 ```
 
-**`.env.example`** configuration:
-```env
-# PostgreSQL connection string
-DATABASE_URL="postgresql://user:password@localhost:5432/solar_calculator_db?schema=public"
-
-# Additional environment configurations (if required by next.config.ts)
-# NEXT_PUBLIC_API_KEY="..."
-```
-
 ### 3. Database Migration
 
-Push the Prisma schema to your PostgreSQL database and generate the client types:
-
 ```bash
-# Synchronize the schema to the database (No migration history for fast prototyping)
+# Synchronize the schema
 npx prisma db push
 
 # Generate Prisma Client
 npx prisma generate
 ```
 
-### 4. Ignite the Engine
+### 4. Start Development Server
 
-Run the development server natively, or spin up the containerized environment.
-
-**Native Development:**
 ```bash
 npm run dev
-# The application will be ready at http://localhost:3000
-```
-
-**Docker Deployment:**
-```bash
-# Verify the docker-compose.yml configuration
-docker-compose up -d --build
 ```
 
 ---
